@@ -1,0 +1,17 @@
+extends: default
+
+rules:
+  line-length: disable
+  truthy: disable
+  document-start: disable
+  comments-indentation: disable
+  braces: disable
+  brackets: disable
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+  empty-lines:
+    max: 2
+
+ignore: |
+  .git/
