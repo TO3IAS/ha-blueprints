@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Home Assistant Community
+    url: https://community.home-assistant.io/
+    about: Allgemeine Fragen zu Home Assistant sind im Community-Forum besser aufgehoben.
