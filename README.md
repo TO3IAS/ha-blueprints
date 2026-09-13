@@ -54,6 +54,11 @@ wird, bliebe so dauerhaft an.
 - Je kürzer das Aktualisierungsintervall des Sensors, desto kürzer darf die Dauer
   gewählt werden. Bei Sensoren mit langsamer Aktualisierung sind mindestens 3–5 Minuten
   sinnvoll, damit einzelne Messausreißer nicht zum frühzeitigen Abschalten führen.
+- Die Einschalt-Karenzzeit sollte auf mindestens einer Minute stehen. Der Template-Trigger
+  löst nur beim Wechsel von „nicht erfüllt“ auf „erfüllt“ aus; nach einem Neustart von Home
+  Assistant sorgt die Karenzzeit dafür, dass dieser Wechsel sauber stattfindet. Bei `0` kann
+  ein Gerät, das beim Neustart bereits eingeschaltet war und wenig zieht, hängen bleiben, bis
+  die Leistung einmal über den Schwellwert steigt.
 - Geräte mit Pausen im Programm (z. B. Waschmaschinen mit Einweichphase oder Wärmepumpen-
   trockner mit Knitterschutz) brauchen eine entsprechend längere Dauer.
 
@@ -92,8 +97,11 @@ deklarierte oder ungenutzte `!input`-Referenzen sowie die Syntax aller Jinja-Tem
 │   └── automation/to3ias/       Automations-Blueprints
 ├── scripts/
 │   └── validate_blueprints.py   Validierung
+├── .gitignore
+├── .yamllint.yml                Regeln für die YAML-Prüfung
 ├── CHANGELOG.md
-└── LICENSE
+├── LICENSE
+└── README.md
 ```
 
 ## Lizenz
