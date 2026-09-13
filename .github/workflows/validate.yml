@@ -1,0 +1,29 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: YAML und Blueprint-Struktur
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Abhängigkeiten installieren
+        run: pip install --quiet pyyaml jinja2 yamllint
+
+      - name: YAML-Syntax prüfen
+        run: yamllint .
+
+      - name: Blueprints prüfen
+        run: python scripts/validate_blueprints.py
