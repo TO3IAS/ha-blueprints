@@ -1,0 +1,22 @@
+name: Idee oder Verbesserung
+description: Vorschlag für eine neue Option oder ein neues Blueprint
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem soll gelöst werden?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Wie könnte die Lösung aussehen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Bereits probierte Alternativen
