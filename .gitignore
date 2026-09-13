@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editoren
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Home Assistant (falls hier mal Config landet)
+secrets.yaml
+*.db
+*.db-shm
+*.db-wal
+.storage/
+home-assistant.log*
