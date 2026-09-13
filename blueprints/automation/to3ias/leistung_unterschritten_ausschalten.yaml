@@ -1,0 +1,138 @@
+blueprint:
+  name: Gerät bei Leistungsunterschreitung ausschalten
+  description: |
+    Schaltet eine Entität (Steckdose, Licht, Lüfter, …) automatisch aus, sobald
+    ein Leistungssensor für eine einstellbare Dauer **ununterbrochen** unter
+    einem Schwellwert liegt.
+
+    Typischer Anwendungsfall: Waschmaschine, Trockner, Geschirrspüler oder ein
+    Ladegerät, das nach Programm-/Ladeende nur noch Standby zieht, automatisch
+    stromlos schalten.
+
+    **Einschalt-Karenzzeit:** Nach dem Einschalten wird für eine einstellbare
+    Zeit nicht abgeschaltet. Das verhindert, dass das Gerät während der Anlauf-
+    oder Vorlaufphase (Programmwahl, Wasser einlaufen, Aufheizen) sofort wieder
+    ausgeht. Die Messdauer der Unterschreitung startet erst nach Ablauf der
+    Karenzzeit.
+
+    Hinweis: Die Karenzzeit wird ab der letzten Zustandsänderung der Entität
+    gerechnet (also ab dem Einschalten). Nach einem Home-Assistant-Neustart
+    beginnt sie erneut.
+  domain: automation
+  source_url: https://github.com/TO3IAS/ha-blueprints/blob/main/blueprints/automation/to3ias/leistung_unterschritten_ausschalten.yaml
+  homeassistant:
+    min_version: "2024.10.0"
+  input:
+    power_sensor:
+      name: Leistungssensor
+      description: >-
+        Sensor, der die Leistungsaufnahme des Geräts misst (z. B. der
+        Leistungswert der schaltbaren Steckdose). Jeder numerische Sensor ist
+        möglich – W, VA oder A – der Schwellwert muss dann in derselben Einheit
+        angegeben werden.
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+    power_threshold:
+      name: Schwellwert
+      description: >-
+        Unterhalb dieses Wertes gilt das Gerät als "fertig". Bei Waschmaschinen
+        o. ä. etwas über dem Standby-Verbrauch wählen (z. B. 3–5 W).
+      default: 5
+      selector:
+        number:
+          min: 0
+          max: 5000
+          step: 0.5
+          unit_of_measurement: W
+          mode: box
+    below_duration:
+      name: Dauer der Unterschreitung
+      description: >-
+        So lange muss die Leistung ununterbrochen unter dem Schwellwert liegen,
+        bevor abgeschaltet wird. Steigt sie zwischendurch wieder an, beginnt die
+        Zeit von vorn.
+      default:
+        hours: 0
+        minutes: 5
+        seconds: 0
+      selector:
+        duration:
+    min_on_time:
+      name: Einschalt-Karenzzeit
+      description: >-
+        So lange nach dem Einschalten wird nicht abgeschaltet. 0 = keine
+        Karenzzeit.
+      default: 5
+      selector:
+        number:
+          min: 0
+          max: 240
+          step: 1
+          unit_of_measurement: min
+          mode: box
+    target_entity:
+      name: Zu schaltende Entität
+      description: >-
+        Wird über `homeassistant.turn_off` ausgeschaltet – funktioniert für
+        Schalter, Steckdosen, Lichter, Lüfter und weitere schaltbare Entitäten.
+      selector:
+        entity:
+          filter:
+            - domain:
+                - switch
+                - light
+                - fan
+                - input_boolean
+                - humidifier
+                - media_player
+                - climate
+                - water_heater
+                - siren
+
+mode: single
+max_exceeded: silent
+
+# In Triggern nutzbare Variablen (reguläre `variables:` stehen dort nicht zur Verfügung).
+trigger_variables:
+  power_sensor: !input power_sensor
+  power_threshold: !input power_threshold
+  target_entity: !input target_entity
+  min_on_time: !input min_on_time
+
+triggers:
+  # Der Trigger ist wahr, wenn alle drei Bedingungen gleichzeitig gelten:
+  #   1. die Entität ist eingeschaltet
+  #   2. die Einschalt-Karenzzeit ist abgelaufen
+  #   3. die Leistung liegt unter dem Schwellwert
+  # `for:` verlangt, dass das durchgehend für die eingestellte Dauer gilt.
+  # Dadurch wird auch dann korrekt ausgelöst, wenn das Gerät bereits während
+  # der Karenzzeit wenig Leistung gezogen hat.
+  - trigger: template
+    value_template: >-
+      {% set obj = states[target_entity] %}
+      {{ obj is not none
+         and obj.state not in ['off', 'unavailable', 'unknown']
+         and (now() - obj.last_changed).total_seconds() >= (min_on_time | float(0)) * 60
+         and states(power_sensor) | float(1e12) < (power_threshold | float(0)) }}
+    for: !input below_duration
+
+conditions: []
+
+# In Bedingungen/Aktionen nutzbare Variablen.
+variables:
+  target_entity: !input target_entity
+
+actions:
+  - action: homeassistant.turn_off
+    target:
+      entity_id: !input target_entity
+
+  # Optional: Benachrichtigung – einfach einkommentieren und Dienst anpassen.
+  # - action: notify.persistent_notification
+  #   data:
+  #     title: Gerät ausgeschaltet
+  #     message: >-
+  #       {{ state_attr(target_entity, 'friendly_name') or target_entity }}
+  #       wurde nach Leistungsunterschreitung ausgeschaltet.
