@@ -77,13 +77,15 @@ auswählen.
 Prüfungen lokal ausführen – identisch zu dem, was die GitHub-Action macht:
 
 ```bash
-pip install pyyaml jinja2 yamllint
+pip install pyyaml jinja2 yamllint pytest
 yamllint .
 python scripts/validate_blueprints.py
+pytest tests/
 ```
 
 Das Skript prüft YAML-Syntax, Pflichtfelder im `blueprint`-Block, Selektoren, nicht
 deklarierte oder ungenutzte `!input`-Referenzen sowie die Syntax aller Jinja-Templates.
+Die Tests in `tests/` decken diese Prüflogik selbst ab.
 
 ## Struktur
 
@@ -97,6 +99,8 @@ deklarierte oder ungenutzte `!input`-Referenzen sowie die Syntax aller Jinja-Tem
 │   └── automation/to3ias/       Automations-Blueprints
 ├── scripts/
 │   └── validate_blueprints.py   Validierung
+├── tests/
+│   └── test_validate_blueprints.py   Tests für die Validierung
 ├── .gitignore
 ├── .yamllint.yml                Regeln für die YAML-Prüfung
 ├── CHANGELOG.md

@@ -7,6 +7,10 @@ die Versionierung an [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Hinzugefügt
+
+- Tests für `scripts/validate_blueprints.py`, die auch in der CI laufen.
+
 ## [1.0.0] - 2026-09-13
 
 ### Hinzugefügt

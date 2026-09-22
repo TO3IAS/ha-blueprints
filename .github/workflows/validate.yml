@@ -20,10 +20,13 @@ jobs:
           python-version: "3.12"
 
       - name: Abhängigkeiten installieren
-        run: pip install --quiet pyyaml jinja2 yamllint
+        run: pip install --quiet pyyaml jinja2 yamllint pytest
 
       - name: YAML-Syntax prüfen
         run: yamllint .
 
       - name: Blueprints prüfen
         run: python scripts/validate_blueprints.py
+
+      - name: Tests ausführen
+        run: pytest tests/
